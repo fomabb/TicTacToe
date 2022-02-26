@@ -1,150 +1,78 @@
 package by.foma.TicTacToe;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseEvent;
+import java.util.Scanner;
 
+public class TicTacToe {
+    public static Scanner scanner = new Scanner(System.in);
+    private static int fieldSize = 3;
+    private static char[][] field = new char[fieldSize][fieldSize];
+    private static char turn = 'O';
+    private static char moveNum = 0;
 
-public class TicTacToe extends JComponent {
-    public static final int FIELD_EMPTY = 0;
-    public static final int FILED_X = 10;
-    public static final int FIELD_O = 200;
-    int[][] field;
-    boolean isXturn;
-
-    public TicTacToe() {
-        enableEvents(AWTEvent.MOUSE_EVENT_MASK);
-        field = new int[3][3];
-        initGame();
-    }
-
-    public void initGame() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                field[i][j] = FIELD_EMPTY;
+    public static void initiliaze() {
+        for (int i = 0; i < fieldSize; i++) {
+            for (int j = 0; j < fieldSize; j++) {
+                field[i][j] = '-';
             }
         }
-        isXturn = true;
     }
 
-    @Override
-    protected void processMouseEvent(MouseEvent mouseEvent) {
-        super.processMouseEvent(mouseEvent);
-        if (mouseEvent.getButton() == mouseEvent.BUTTON1) {
-            int x = mouseEvent.getX();
-            int y = mouseEvent.getY();
-            int i = (int) ((float) x / getWidth() * 3);
-            int j = (int) ((float) y / getHeight() * 3);
-
-            if (field[i][j] == FIELD_EMPTY) {
-                field[i][j] = isXturn ? FILED_X : FIELD_O;
-                isXturn = !isXturn;
-                repaint();
-                int res = checkState();
-                if (res != 0) {
-                    if (res == FIELD_O * 3) {
-                        JOptionPane.showMessageDialog(this, "noughts won!", "Win", JOptionPane.INFORMATION_MESSAGE);
-                    } else if (res == FILED_X * 3) {
-                        JOptionPane.showMessageDialog(this, "crosses won", "Win", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "draw", "draw", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                    initGame();
-                    repaint();
+    public static void printField() {
+        for (int i = 0; i < fieldSize; i++) {
+            for (int j = 0; i < fieldSize; j++) {
+                System.out.println(field[i][j]);
+                if (j != fieldSize - 1) {
+                    System.out.println("|");
                 }
             }
-        }
-    }
-
-    @Override
-    protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        graphics.clearRect(0, 0, getWidth(), getHeight());
-        drawGrid(graphics);
-        drawXO(graphics);
-    }
-
-    void drawGrid(Graphics graphics) {
-        int w = getWidth();
-        int h = getHeight();
-        int dw = w / 3;
-        int dh = h / 3;
-        graphics.setColor(Color.BLUE);
-        for (int i = 1; i < 3; i++) {
-            graphics.drawLine(0, dh * i, w, dh * i);
-            graphics.drawLine(dw * i, 0, dw * i, h);
-        }
-    }
-
-    void drawX(int i, int j, Graphics graphics) {
-        graphics.setColor(Color.BLACK);
-        int dw = getWidth() / 3;
-        int dh = getHeight() / 3;
-        int x = i * dw;
-        int y = j * dh;
-        graphics.drawLine(x, y, x + dw, y + dh);
-        graphics.drawLine(x, y + dh, x + dw, y);
-    }
-
-    void drawY(int i, int j, Graphics graphics) {
-        graphics.setColor(Color.BLACK);
-        int dw = getWidth() / 3;
-        int dh = getHeight() / 3;
-        int x = i * dw;
-        int y = j * dh;
-        graphics.drawOval(x + 5 * dw / 100, y, dw * 9 / 10, dh);
-    }
-
-    void drawXO(Graphics graphics) {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (field[i][j] == FILED_X) {
-                    drawX(i, j, graphics);
-                } else if (field[i][j] == FIELD_O) {
-                    drawY(i, j, graphics);
-                }
+            System.out.println();
+            if (i != fieldSize - 1) {
+                System.out.println("------");
             }
         }
+        System.out.println();
     }
 
-    int checkState() {
-        int diag = 0;
-        int diag2 = 0;
-        for (int i = 0; i < 3; i++) {
-            diag += field[i][i];
-            diag2 += field[i][2 - i];
-        }
+    public static boolean checkWin() {
+        if (((field[0][0] == turn && field[0][1] == turn && field[0][2] == turn) ||
+                (field[1][0] == turn && field[1][1] == turn && field[1][2] == turn) ||
+                (field[2][0] == turn && field[2][1] == turn && field[2][2] == turn) ||
+                (field[0][0] == turn && field[1][0] == turn && field[2][0] == turn) ||
+                (field[0][1] == turn && field[1][1] == turn && field[2][1] == turn) ||
+                (field[0][2] == turn && field[1][2] == turn && field[2][2] == turn) ||
+                (field[0][0] == turn && field[1][1] == turn && field[2][2] == turn) ||
+                (field[0][2] == turn && field[1][1] == turn && field[2][0] == turn)))
+            return true;
 
-        if (diag == FIELD_O * 3 || diag == FILED_X * 3) {
-            return diag;
-        }
+        return false;
+    }
 
-        if (diag2 == FIELD_O * 3 || diag2 == FILED_X * 3) {
-            return diag2;
-        }
-        int chek_i, chek_j;
-        boolean hasEmpty = false;
-        for (int i = 0; i < 3; i++) {
-            chek_i = 0;
-            chek_j = 0;
-            for (int j = 0; j < 3; j++) {
-                if (field[i][j] == 0) {
-                    hasEmpty = true;
-                }
-                chek_i += field[i][j];
-                chek_j += field[i][j];
+    public static void makeMove() {
+        int row, col;
+        boolean validInput = false;
+
+        do {
+            if (turn == 'X') {
+                System.out.println("Player X enter your move (row:1,2,3)!");
+            } else {
+                System.out.println("Player O enter your move (row:1,2,3)!");
             }
-            if (chek_i == FIELD_O * 3 || chek_i == FILED_X * 3) {
-                return chek_i;
+            row = scanner.nextInt() - 1;
+            if (turn == 'X') {
+                System.out.print("Player X enter your move (col:1,2,3)!");
+            } else {
+                System.out.print("Player O enter your move (col:1,2,3)!");
             }
-            if (chek_j == FIELD_O * 3 || chek_j == FILED_X * 3) {
-                return chek_j;
+            col = scanner.nextInt();
+            if (row >= 0 && row < fieldSize && col >= 0 && col < fieldSize && field[row][col] == '-') {
+                field[row][col] = turn;
+                validInput = true;
+            } else {
+                System.out.println("This move at (" + (row + 1) + ", " + (col + 1) + ") is not valid. Try again...");
             }
-        }
-        if (hasEmpty) {
-            return 0;
-        } else {
-            return -1;
-        }
+        } while (!validInput);
+    }
+
+    public static void play() {
     }
 }
